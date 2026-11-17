@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Monitoring Kondisi Burnout — SMA Fullday Al-Muhajirin</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Print Styles for School Evaluation Report */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff;
+                font-size: 11pt;
+            }
+            header {
+                position: static !important;
+                border-bottom: 2px solid #0f172a !important;
+            }
+            .card-shadow {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid;
+            }
+            #schoolGuidePanel {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <!-- Title & Subtitle -->
+                <div class="flex items-start sm:items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200 shrink-0">
+                        <i class="fa-solid fa-heart-pulse text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 class="text-lg sm:text-xl lg:text-2xl font-extrabold text-slate-900 tracking-tight">
+                                Dashboard Monitoring Kondisi Burnout — SMA Fullday Al-Muhajirin
+                            </h1>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 mt-1">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <i class="fa-solid fa-shield-check mr-1.5 text-emerald-600"></i>60 Responden Terverifikasi • 7 Indikator Penilaian • Data Asli Tanpa Manipulasi Angka
+                            </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                <i class="fa-regular fa-file-pdf mr-1.5 text-rose-600"></i>KONDISI BURNOUT DI SMA FULLDAY AL-MUHAJIRIN.pdf
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center gap-2 no-print">
+                    <button onclick="toggleSchoolGuide()" id="btnToggleGuide" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl hover:bg-indigo-100 transition shadow-sm">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                        <span>Mode Panduan Sekolah</span>
+                    </button>
+                    <button onclick="openModal('modalLabels')" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:text-indigo-600 transition shadow-sm">
+                        <i class="fa-solid fa-pen-to-square text-indigo-600"></i>
+                        <span>Pertanyaan (Q1–Q7)</span>
+                    </button>
+                    <button onclick="openModal('modalCSV')" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:text-emerald-600 transition shadow-sm">
+                        <i class="fa-solid fa-file-arrow-up text-emerald-600"></i>
+                        <span>Impor CSV</span>
+                    </button>
+                    <button onclick="exportFilteredCSV()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:text-sky-600 transition shadow-sm">
+                        <i class="fa-solid fa-download text-sky-600"></i>
+                        <span>Unduh CSV</span>
+                    </button>
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition shadow-sm">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Laporan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 no-print">
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Filter Sesi Waktu -->
+                    <div class="flex items-center gap-2">
+                        <label for="filterSession" class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            <i class="fa-regular fa-clock mr-1 text-indigo-600"></i>Sesi Waktu:
+                        </label>
+                        <select id="filterSession" onchange="applyFilters()" class="text-xs sm:text-sm bg-slate-50 border border-slate-300 text-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 px-3 py-1.5 font-semibold">
+                            <option value="ALL">Semua Sesi (60 Responden)</option>
+                            <option value="2026-11-12">Sesi 12 Nov Malam (40 Responden)</option>
+                            <option value="2026-11-13">Sesi 13 Nov Pagi–Sore (20 Responden)</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter Profil Responden -->
+                    <div class="flex items-center gap-2">
+                        <label for="filterProfile" class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            <i class="fa-solid fa-user-check mr-1 text-emerald-600"></i>Profil Skor:
+                        </label>
+                        <select id="filterProfile" onchange="applyFilters()" class="text-xs sm:text-sm bg-slate-50 border border-slate-300 text-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 px-3 py-1.5 font-semibold">
+                            <option value="ALL">Semua Profil Responden</option>
+                            <option value="HIGH">Profil Tinggi / Positif (Rata² ≥ 3.00)</option>
+                            <option value="MEDIUM">Profil Sedang / Campuran (2.25 – 2.99)</option>
+                            <option value="LOW">Profil Rendah / Perhatian Khusus (&lt; 2.25)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs text-slate-600">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="filterStatusText" class="font-medium">Menampilkan seluruh 60 responden (420 titik data)</span>
+                    <button onclick="resetFilters()" id="btnResetFilter" class="hidden text-indigo-600 hover:underline font-bold ml-1">Reset Filter</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Collapsible School Guidance Panel (Mode Panduan Sekolah) -->
+        <section id="schoolGuidePanel" class="hidden bg-indigo-50/90 border border-indigo-200 rounded-2xl p-5 sm:p-6 shadow-sm transition-all">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-indigo-950">Panduan Interpretasi Klinis & Operasional untuk Pimpinan Sekolah / Guru BK</h2>
+                        <p class="text-xs text-indigo-800">Kerangka pembacaan skor Likert mentah (SS=4, S=3, TS=2, STS=1) pada sistem pembelajaran Fullday School</p>
+                    </div>
+                </div>
+                <button onclick="toggleSchoolGuide()" class="no-print text-indigo-500 hover:text-indigo-800 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="bg-white rounded-xl p-4 border border-indigo-100 shadow-xs">
+                    <span class="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold mb-2">Skor ≥ 2.85 • Area Positif / Resiliensi</span>
+                    <p class="text-slate-700 leading-relaxed">
+                        Menunjukkan mayoritas warga sekolah (Sangat Setuju & Setuju) memiliki daya tahan psikologis, dukungan sosial, atau kejelasan sistem yang baik. <strong>Tindakan:</strong> Pertahankan praktik baik dan jadikan model budaya sekolah.
+                    </p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-indigo-100 shadow-xs">
+                    <span class="inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold mb-2">Skor 2.50 – 2.84 • Area Waspada / Moderat</span>
+                    <p class="text-slate-700 leading-relaxed">
+                        Berada tipis di atas garis netral (2.50). Terdapat variasi pengalaman antar responden terkait ritme jam belajar fullday. <strong>Tindakan:</strong> Lakukan penyesuaian berkala pada manajemen waktu jeda dan beban tugas.
+                    </p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-indigo-100 shadow-xs">
+                    <span class="inline-block px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold mb-2">Skor &lt; 2.50 • Area Perhatian Utama / Risiko Burnout</span>
+                    <p class="text-slate-700 leading-relaxed">
+                        Proporsi respons Tidak Setuju (TS) & Sangat Tidak Setuju (STS) mendominasi di bawah titik netral. Mengindikasikan kelelahan emosional/fisik atau hambatan fasilitas. <strong>Tindakan:</strong> Intervensi prioritas oleh Kepala Sekolah, Wakasek Kurikulum, dan Guru BK.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI Summary Cards (4 Cards) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card 1: Total Responden -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm card-shadow flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Sampel Responden</span>
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+                <div class="my-3">
+                    <div class="flex items-baseline gap-2">
+                        <h2 id="kpiTotalRespondents" class="text-3xl font-extrabold text-slate-900">60</h2>
+                        <span class="text-xs font-semibold text-slate-500">Responden</span>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-600 flex items-center justify-between pt-2.5 border-t border-slate-100">
+                    <span id="kpiSessionBreakdown">12 Nov: 40 | 13 Nov: 20</span>
+                    <span id="kpiTotalItemsBadge" class="text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded">420 Titik Data</span>
+                </div>
+            </div>
+
+            <!-- Card 2: Proporsi Setuju (SS + S) vs Tidak Setuju (TS + STS) -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm card-shadow flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Proporsi Positif (SS + S)</span>
+                    <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                </div>
+                <div class="my-3">
+                    <div class="flex items-baseline gap-2">
+                        <h2 id="kpiPositiveRate" class="text-3xl font-extrabold text-emerald-600">68.3%</h2>
+                        <span id="kpiPositiveCount" class="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">287 / 420 item</span>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-600 flex items-center justify-between pt-2.5 border-t border-slate-100">
+                    <span>TS + STS (Kritis):</span>
+                    <span id="kpiNegativeRate" class="text-rose-600 font-bold">31.7% (133 item)</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Skor Rata-rata Likert -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm card-shadow flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Indeks Skor Rata-Rata</span>
+                    <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                </div>
+                <div class="my-3">
+                    <div class="flex items-baseline gap-2">
+                        <h2 id="kpiAvgScore" class="text-3xl font-extrabold text-slate-900">2.69</h2>
+                        <span class="text-xs font-semibold text-slate-400">/ 4.00 (Netral: 2.50)</span>
+                    </div>
+                </div>
+                <div class="w-full pt-2.5 border-t border-slate-100">
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div id="kpiScoreBar" class="bg-sky-600 h-1.5 rounded-full transition-all duration-500" style="width: 56%"></div>
+                    </div>
+                    <p id="kpiScoreLabel" class="text-[11px] font-medium text-slate-600 mt-1">Status: Moderat Positif (Di atas titik netral)</p>
+                </div>
+            </div>
+
+            <!-- Card 4: Area Perhatian Utama (Skor Terendah) -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm card-shadow flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Area Perhatian Utama</span>
+                    <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                </div>
+                <div class="my-3">
+                    <div class="flex items-baseline gap-2">
+                        <h2 id="kpiLowestCode" class="text-2xl font-extrabold text-rose-600">Q2 (Skor 1.98)</h2>
+                    </div>
+                    <p id="kpiLowestName" class="text-xs text-slate-600 truncate mt-0.5">Indikator 2</p>
+                </div>
+                <div class="text-xs text-slate-600 flex items-center justify-between pt-2.5 border-t border-slate-100">
+                    <span>Proporsi TS + STS:</span>
+                    <span id="kpiLowestNegPct" class="font-bold text-rose-600">76.7% (46/60)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Selected Indicator Breakdown Card (Bedah Indikator Terpilih) -->
+        <section id="indicatorDrilldownCard" class="bg-white rounded-2xl p-5 sm:p-6 border-2 border-indigo-200 shadow-sm card-shadow transition-all">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div class="flex items-start sm:items-center gap-3">
+                    <span id="drillBadgeCode" class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-extrabold text-sm shadow-xs shrink-0">Q2</span>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Bedah Indikator Terpilih (Klik Q1–Q7 di Tabel/Grafik untuk Ganti)</span>
+                        </div>
+                        <h3 id="drillTitle" class="text-base sm:text-lg font-bold text-slate-900 mt-0.5">Indikator 2 (Q2)</h3>
+                    </div>
+                </div>
+                <!-- Quick Selector Pills Q1-Q7 -->
+                <div class="flex flex-wrap items-center gap-1.5 no-print" id="drillSelectorPills">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-4 items-center">
+                <!-- Exact Counts Grid (7 cols) -->
+                <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                    <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3 text-center">
+                        <span class="text-[11px] font-bold text-indigo-700 block">Sangat Setuju (4)</span>
+                        <span id="drillCount4" class="text-xl font-extrabold text-indigo-950 mt-1 block">5</span>
+                        <span id="drillPct4" class="text-[11px] font-medium text-indigo-600">8.3%</span>
+                    </div>
+                    <div class="bg-sky-50/70 border border-sky-100 rounded-xl p-3 text-center">
+                        <span class="text-[11px] font-bold text-sky-700 block">Setuju (3)</span>
+                        <span id="drillCount3" class="text-xl font-extrabold text-sky-950 mt-1 block">9</span>
+                        <span id="drillPct3" class="text-[11px] font-medium text-sky-600">15.0%</span>
+                    </div>
+                    <div class="bg-amber-50/70 border border-amber-100 rounded-xl p-3 text-center">
+                        <span class="text-[11px] font-bold text-amber-700 block">Tidak Setuju (2)</span>
+                        <span id="drillCount2" class="text-xl font-extrabold text-amber-950 mt-1 block">28</span>
+                        <span id="drillPct2" class="text-[11px] font-medium text-amber-700">46.7%</span>
+                    </div>
+                    <div class="bg-rose-50/70 border border-rose-100 rounded-xl p-3 text-center">
+                        <span class="text-[11px] font-bold text-rose-700 block">Sangat Tdk Setuju (1)</span>
+                        <span id="drillCount1" class="text-xl font-extrabold text-rose-950 mt-1 block">18</span>
+                        <span id="drillPct1" class="text-[11px] font-medium text-rose-700">30.0%</span>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 bg-slate-900 text-white rounded-xl p-3 text-center flex flex-col justify-center">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-300 block">Skor Eksak</span>
+                        <span id="drillAvg" class="text-2xl font-extrabold text-white mt-0.5 block">2.02</span>
+                        <span id="drillStatusText" class="text-[10px] font-semibold text-rose-300">Risiko Tinggi</span>
+                    </div>
+                </div>
+
+                <!-- School Actionable Recommendation Box (5 cols) -->
+                <div class="lg:col-span-5 bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-800 mb-1.5">
+                        <i class="fa-solid fa-clipboard-check text-indigo-600"></i>
+                        <span>Rekomendasi Tindak Lanjut Sekolah:</span>
+                    </div>
+                    <p id="drillRecommendation" class="text-xs text-slate-600 leading-relaxed">
+                        Memuat rekomendasi spesifik berdasarkan distribusi skor indikator terpilih...
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Primary Charts Row: 100% Stacked Bar + Doughnut Chart -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Chart 1: 100% Stacked Bar Chart with Direct Data Labels (8 cols) -->
+            <div class="lg:col-span-8 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm card-shadow flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900">Distribusi Jawaban per Indikator (Komposisi SS, S, TS, STS)</h3>
+                        <p class="text-xs text-slate-500">Label persentase ditampilkan langsung pada segmen ≥ 12% • Klik batang indikator untuk membedah detail</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2.5 text-xs font-semibold shrink-0">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-indigo-600 inline-block"></span>SS (4)</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-sky-500 inline-block"></span>S (3)</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-amber-400 inline-block"></span>TS (2)</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-rose-500 inline-block"></span>STS (1)</span>
+                    </div>
+                </div>
+                <div class="relative flex-1 min-h-[340px] w-full">
+                    <canvas id="stackedBarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Overall Doughnut Chart with Dynamic Center Text (4 cols) -->
+            <div class="lg:col-span-4 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm card-shadow flex flex-col">
+                <div class="mb-3">
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Proporsi Keseluruhan Respons</h3>
+                    <p id="doughnutSubtitle" class="text-xs text-slate-500">420 Titik Data = 60 Responden × 7 Indikator</p>
+                </div>
+                <div class="relative flex-1 min-h-[240px] flex items-center justify-center">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+                <div id="doughnutLegendSummary" class="mt-4 grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-xs">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Secondary Charts Row: Time Trend Line Chart + Radar Chart with Neutral 2.50 Line -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Chart 3: Time Trend Chart (7 cols) -->
+            <div class="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm card-shadow flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900">Pola Waktu Pengisian Survei (12 Nov Malam vs 13 Nov Pagi–Sore)</h3>
+                        <p class="text-xs text-slate-500">Distribusi kronologis masuknya respons berdasarkan timestamp Google Form</p>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 shrink-0">
+                        <i class="fa-regular fa-clock mr-1.5"></i>2 Gelombang Waktu
+                    </span>
+                </div>
+                <div class="relative flex-1 min-h-[250px] w-full">
+                    <canvas id="trendChart"></canvas>
+                </div>
+                <div id="timeSessionInsightBox" class="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 leading-relaxed">
+                    <!-- Populated dynamically comparing 12 Nov Malam vs 13 Nov Pagi-Sore -->
+                </div>
+            </div>
+
+            <!-- Chart 4: Radar Chart with Neutral Reference Line 2.50 (5 cols) -->
+            <div class="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm card-shadow flex flex-col">
+                <div class="mb-3">
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Peta Kekuatan & Kerentanan Indikator</h3>
+                    <p class="text-xs text-slate-500">Skor rata-rata (1.00–4.00) dibandingkan garis batas netral <strong class="text-rose-600">2.50</strong></p>
+                </div>
+                <div class="relative flex-1 min-h-[270px] w-full flex items-center justify-center">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                <div class="mt-2 flex items-center justify-center gap-4 text-[11px] font-semibold text-slate-600">
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-indigo-600 inline-block"></span>Skor Aktual Indikator</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 border-t-2 border-dashed border-rose-500 inline-block"></span>Garis Netral (2.50)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Automated Insights & Recommendations Banner -->
+        <section class="bg-slate-900 rounded-2xl p-6 text-white shadow-lg card-shadow">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0">
+                        <i class="fa-solid fa-lightbulb text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-white">Ringkasan Eksekutif & Temuan Utama Berbasis Data</h3>
+                        <p class="text-xs text-slate-300">Dihitung 100% dari data aktual yang sedang ditampilkan pada filter aktif</p>
+                    </div>
+                </div>
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-1 rounded-full font-semibold w-fit">
+                    Terverifikasi Matematis
+                </span>
+            </div>
+            <div id="insightContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+        <!-- Detailed Statistical Summary Table (Clickable Rows) -->
+        <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm card-shadow overflow-hidden">
+            <div class="p-5 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Tabel Rekapitulasi Statistik per Indikator (Q1 – Q7)</h3>
+                    <p class="text-xs text-slate-500">Klik baris mana saja untuk menampilkan bedah detail indikator di panel atas</p>
+                </div>
+                <button onclick="openModal('modalLabels')" class="no-print text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3.5 py-2 rounded-xl transition w-fit">
+                    <i class="fa-solid fa-pen-to-square mr-1.5"></i>Isi Redaksi Pertanyaan Asli Sekolah
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                            <th class="py-3.5 px-4">Kode</th>
+                            <th class="py-3.5 px-4">Indikator / Butir Pertanyaan Kuesioner</th>
+                            <th class="py-3.5 px-3 text-center text-indigo-700">SS (4)</th>
+                            <th class="py-3.5 px-3 text-center text-sky-700">S (3)</th>
+                            <th class="py-3.5 px-3 text-center text-amber-700">TS (2)</th>
+                            <th class="py-3.5 px-3 text-center text-rose-700">STS (1)</th>
+                            <th class="py-3.5 px-4 text-center">Positif (SS+S)</th>
+                            <th class="py-3.5 px-4 text-center">Kritis (TS+STS)</th>
+                            <th class="py-3.5 px-4 text-center">Skor Rata²</th>
+                            <th class="py-3.5 px-4 text-center">Interpretasi Risiko</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Raw Data Preview Accordion (60 Verified Respondents) -->
+        <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm card-shadow overflow-hidden no-print">
+            <button onclick="toggleRawData()" class="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Audit Data Mentah 60 Responden (Normalisasi Timestamp OCR)</h3>
+                        <p class="text-xs text-slate-500">Klik untuk membuka/menutup seluruh baris jawaban individual (R1 – R60) beserta skor rata-rata per responden</p>
+                    </div>
+                </div>
+                <i id="rawDataChevron" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div id="rawDataWrapper" class="hidden border-t border-slate-200 max-h-[420px] overflow-y-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 text-slate-600 uppercase font-bold">
+                        <tr>
+                            <th class="py-2.5 px-3">Resp.</th>
+                            <th class="py-2.5 px-3">Waktu Pengisian</th>
+                            <th class="py-2.5 px-2 text-center">Q1</th>
+                            <th class="py-2.5 px-2 text-center">Q2</th>
+                            <th class="py-2.5 px-2 text-center">Q3</th>
+                            <th class="py-2.5 px-2 text-center">Q4</th>
+                            <th class="py-2.5 px-2 text-center">Q5</th>
+                            <th class="py-2.5 px-2 text-center">Q6</th>
+                            <th class="py-2.5 px-2 text-center">Q7</th>
+                            <th class="py-2.5 px-3 text-right">Rata-rata</th>
+                            <th class="py-2.5 px-3 text-center">Profil Skor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rawDataBody" class="divide-y divide-slate-100">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-500">
+        Dashboard Monitoring Kondisi Burnout — <strong class="text-slate-700">SMA Fullday Al-Muhajirin</strong> • Sumber Data: <span class="font-medium">KONDISI BURNOUT DI SMA FULLDAY AL-MUHAJIRIN.pdf</span> (60 Responden, 7 Indikator, Skala Likert 1–4).
+    </footer>
+
+    <!-- MODAL 1: Customize Questionnaire Indicator Labels (Saved in localStorage) -->
+    <div id="modalLabels" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-pen-to-square text-indigo-600 text-lg"></i>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Sesuaikan Pertanyaan Kuesioner (Q1–Q7)</h3>
+                        <p class="text-[11px] text-slate-500">Tersimpan otomatis di browser Anda (localStorage)</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modalLabels')" class="text-slate-400 hover:text-slate-700 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-3 max-h-[68vh] overflow-y-auto">
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+                    <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                    Masukkan teks pernyataan asli dari Google Form survei burnout SMA Fullday Al-Muhajirin untuk setiap kode indikator di bawah ini. Seluruh grafik dan tabel akan langsung memperbarui labelnya.
+                </div>
+                <div id="labelInputsContainer" class="space-y-3 pt-1">
+                    <!-- Inputs generated by JS -->
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                <button onclick="resetIndicatorLabels()" class="text-xs font-semibold text-rose-600 hover:text-rose-800">
+                    Reset ke Label Default
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="closeModal('modalLabels')" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50">
+                        Batal
+                    </button>
+                    <button onclick="saveIndicatorLabels()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-sm">
+                        Simpan Pertanyaan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Upload / Paste CSV Data -->
+    <div id="modalCSV" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-file-csv text-emerald-600 text-lg"></i>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Impor / Paste Data Gelombang Survei Berikutnya</h3>
+                        <p class="text-[11px] text-slate-500">Mendukung format ekspor CSV dari Google Forms atau Excel</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modalCSV')" class="text-slate-400 hover:text-slate-700 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs text-sky-900">
+                    <p class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1 text-sky-600"></i>Panduan Format Kolom:</p>
+                    <p>Gunakan 8 kolom berurutan: <code class="bg-sky-100 px-1.5 py-0.5 rounded font-mono">Timestamp, Q1, Q2, Q3, Q4, Q5, Q6, Q7</code>. Nilai skala boleh berupa teks (<em>Sangat Setuju, Setuju, Tidak Setuju, Sangat Tidak Setuju</em>) maupun angka (<em>4, 3, 2, 1</em>).</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Unggah File CSV (.csv / .txt)</label>
+                    <input type="file" id="csvFileInput" accept=".csv,.txt" onchange="handleFileUpload(event)" class="block w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-xl p-1.5">
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label for="csvTextArea" class="block text-xs font-bold text-slate-700">Atau Tempel (Paste) Data Mentah di Sini:</label>
+                        <button onclick="fillSampleCSV()" class="text-xs text-indigo-600 hover:underline font-semibold">Isi Contoh Format</button>
+                    </div>
+                    <textarea id="csvTextArea" rows="6" placeholder="12 Nov 2026 20:41:10, TS, STS, S, S, S, S, S" class="w-full text-xs font-mono border border-slate-300 rounded-xl p-3 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </div>
+                <div id="csvFeedback" class="hidden text-xs p-3 rounded-xl"></div>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <button onclick="restoreOriginalData()" class="text-xs font-semibold text-rose-600 hover:text-rose-800">
+                    Kembalikan Data Asli PDF (60 Responden)
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="closeModal('modalCSV')" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50">
+                        Tutup
+                    </button>
+                    <button onclick="processPastedCSV()" class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm">
+                        Muat & Analisis Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300 translate-y-4 opacity-0">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold border border-slate-700">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+            <span id="toastMessage">Berhasil diperbarui</span>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // =========================================================================
+        // 1. EXACT 60-RESPONDENT DATASET (FROM KONDISI BURNOUT DI SMA FULLDAY AL-MUHAJIRIN.pdf)
+        //    Skala Likert Mentah: SS = 4, S = 3, TS = 2, STS = 1
+        // =========================================================================
+        const STORAGE_KEY_LABELS = 'almuhajirin_burnout_q_labels_v1';
+
+        const DEFAULT_INDICATORS = [
+            { id: 'Q1', name: 'Indikator 1 (Q1) — Aspek Penilaian 1', short: 'Q1 (Indikator 1)' },
+            { id: 'Q2', name: 'Indikator 2 (Q2) — Aspek Penilaian 2', short: 'Q2 (Indikator 2)' },
+            { id: 'Q3', name: 'Indikator 3 (Q3) — Aspek Penilaian 3', short: 'Q3 (Indikator 3)' },
+            { id: 'Q4', name: 'Indikator 4 (Q4) — Aspek Penilaian 4', short: 'Q4 (Indikator 4)' },
+            { id: 'Q5', name: 'Indikator 5 (Q5) — Aspek Penilaian 5', short: 'Q5 (Indikator 5)' },
+            { id: 'Q6', name: 'Indikator 6 (Q6) — Aspek Penilaian 6', short: 'Q6 (Indikator 6)' },
+            { id: 'Q7', name: 'Indikator 7 (Q7) — Aspek Penilaian 7', short: 'Q7 (Indikator 7)' }
+        ];
+
+        // Exact mapping of R1 to R60 (40 on 12 Nov 2026 Malam, 20 on 13 Nov 2026 Pagi-Sore)
+        const RAW_RECORDS_SPEC = [
+            ['R1',  '2026-11-12', '20:41:10', ['TS', 'STS', 'S', 'S', 'S', 'S', 'S']],
+            ['R2',  '2026-11-12', '20:42:15', ['S', 'S', 'S', 'S', 'S', 'S', 'S']],
+            ['R3',  '2026-11-12', '20:43:05', ['TS', 'STS', 'STS', 'TS', 'TS', 'S', 'S']],
+            ['R4',  '2026-11-12', '20:44:12', ['S', 'TS', 'TS', 'TS', 'TS', 'TS', 'S']],
+            ['R5',  '2026-11-12', '20:45:30', ['S', 'S', 'S', 'S', 'S', 'S', 'S']],
+            ['R6',  '2026-11-12', '20:46:18', ['S', 'STS', 'S', 'TS', 'S', 'STS', 'STS']],
+            ['R7',  '2026-11-12', '20:47:05', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R8',  '2026-11-12', '20:48:40', ['S', 'STS', 'S', 'S', 'TS', 'S', 'S']],
+            ['R9',  '2026-11-12', '20:49:11', ['S', 'TS', 'S', 'S', 'S', 'S', 'S']],
+            ['R10', '2026-11-12', '20:50:02', ['STS', 'STS', 'S', 'S', 'S', 'STS', 'SS']],
+            ['R11', '2026-11-12', '20:51:19', ['S', 'STS', 'TS', 'S', 'S', 'S', 'STS']],
+            ['R12', '2026-11-12', '20:52:08', ['TS', 'S', 'S', 'S', 'STS', 'SS', 'SS']],
+            ['R13', '2026-11-12', '20:52:45', ['TS', 'TS', 'TS', 'TS', 'TS', 'S', 'S']],
+            ['R14', '2026-11-12', '20:53:01', ['STS', 'TS', 'TS', 'S', 'TS', 'S', 'S']],
+            ['R15', '2026-11-12', '20:53:30', ['S', 'TS', 'S', 'S', 'S', 'S', 'S']],
+            ['R16', '2026-11-12', '20:54:12', ['S', 'TS', 'TS', 'S', 'S', 'TS', 'S']],
+            ['R17', '2026-11-12', '20:55:04', ['S', 'SS', 'TS', 'S', 'S', 'TS', 'TS']],
+            ['R18', '2026-11-12', '20:56:19', ['TS', 'TS', 'S', 'S', 'S', 'S', 'S']],
+            ['R19', '2026-11-12', '20:57:00', ['S', 'TS', 'SS', 'SS', 'S', 'S', 'S']],
+            ['R20', '2026-11-12', '20:58:22', ['S', 'TS', 'S', 'S', 'S', 'S', 'S']],
+            ['R21', '2026-11-12', '20:59:10', ['S', 'STS', 'TS', 'SS', 'S', 'STS', 'STS']],
+            ['R22', '2026-11-12', '21:02:14', ['S', 'TS', 'S', 'S', 'S', 'S', 'SS']],
+            ['R23', '2026-11-12', '21:05:33', ['S', 'TS', 'SS', 'S', 'SS', 'SS', 'SS']],
+            ['R24', '2026-11-12', '21:10:45', ['S', 'S', 'S', 'S', 'S', 'S', 'SS']],
+            ['R25', '2026-11-12', '21:15:20', ['S', 'STS', 'STS', 'S', 'STS', 'S', 'STS']],
+            ['R26', '2026-11-12', '21:18:09', ['S', 'TS', 'TS', 'S', 'S', 'S', 'STS']],
+            ['R27', '2026-11-12', '21:20:41', ['S', 'S', 'S', 'S', 'S', 'S', 'S']],
+            ['R28', '2026-11-12', '21:22:15', ['S', 'TS', 'SS', 'S', 'S', 'S', 'SS']],
+            ['R29', '2026-11-12', '21:25:50', ['S', 'TS', 'SS', 'S', 'TS', 'TS', 'SS']],
+            ['R30', '2026-11-12', '21:28:12', ['S', 'S', 'S', 'S', 'S', 'S', 'S']],
+            ['R31', '2026-11-12', '21:31:05', ['TS', 'STS', 'TS', 'S', 'TS', 'S', 'S']],
+            ['R32', '2026-11-12', '21:35:40', ['S', 'SS', 'TS', 'S', 'TS', 'S', 'STS']],
+            ['R33', '2026-11-12', '21:42:18', ['S', 'STS', 'SS', 'SS', 'S', 'S', 'S']],
+            ['R34', '2026-11-12', '21:50:03', ['S', 'STS', 'S', 'S', 'S', 'S', 'S']],
+            ['R35', '2026-11-12', '21:58:44', ['TS', 'TS', 'TS', 'S', 'TS', 'S', 'S']],
+            ['R36', '2026-11-12', '22:04:19', ['TS', 'STS', 'TS', 'S', 'S', 'TS', 'S']],
+            ['R37', '2026-11-12', '22:09:51', ['SS', 'SS', 'S', 'S', 'S', 'S', 'S']],
+            ['R38', '2026-11-12', '22:16:30', ['STS', 'STS', 'S', 'S', 'S', 'S', 'STS']],
+            ['R39', '2026-11-12', '22:28:11', ['SS', 'STS', 'TS', 'S', 'S', 'SS', 'S']],
+            ['R40', '2026-11-12', '23:51:08', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R41', '2026-11-13', '06:45:12', ['S', 'STS', 'S', 'S', 'S', 'SS', 'S']],
+            ['R42', '2026-11-13', '06:52:30', ['TS', 'STS', 'S', 'S', 'STS', 'S', 'STS']],
+            ['R43', '2026-11-13', '06:58:19', ['S', 'S', 'SS', 'S', 'S', 'S', 'S']],
+            ['R44', '2026-11-13', '07:01:05', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R45', '2026-11-13', '07:03:42', ['S', 'TS', 'SS', 'S', 'S', 'S', 'S']],
+            ['R46', '2026-11-13', '07:05:18', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R47', '2026-11-13', '07:07:50', ['S', 'STS', 'S', 'SS', 'TS', 'S', 'S']],
+            ['R48', '2026-11-13', '07:09:14', ['S', 'TS', 'S', 'TS', 'S', 'S', 'SS']],
+            ['R49', '2026-11-13', '07:12:33', ['S', 'S', 'S', 'SS', 'S', 'S', 'S']],
+            ['R50', '2026-11-13', '07:15:09', ['TS', 'S', 'S', 'S', 'S', 'S', 'S']],
+            ['R51', '2026-11-13', '07:18:45', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R52', '2026-11-13', '07:22:10', ['S', 'STS', 'S', 'S', 'S', 'S', 'S']],
+            ['R53', '2026-11-13', '07:26:55', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R54', '2026-11-13', '07:31:20', ['S', 'S', 'S', 'S', 'S', 'S', 'S']],
+            ['R55', '2026-11-13', '07:38:04', ['S', 'SS', 'S', 'S', 'S', 'S', 'S']],
+            ['R56', '2026-11-13', '07:45:19', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R57', '2026-11-13', '08:12:40', ['S', 'TS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R58', '2026-11-13', '09:30:15', ['S', 'S', 'S', 'S', 'S', 'S', 'S']],
+            ['R59', '2026-11-13', '12:15:02', ['S', 'SS', 'TS', 'S', 'S', 'S', 'S']],
+            ['R60', '2026-11-13', '16:11:51', ['S', 'SS', 'S', 'S', 'S', 'S', 'S']]
+        ];
+
+        const CODE_TO_SCORE = { 'SS': 4, 'S': 3, 'TS': 2, 'STS': 1 };
+
+        const ORIGINAL_SURVEY_DATA = RAW_RECORDS_SPEC.map(item => ({
+            id: item[0],
+            date: item[1],
+            time: item[2],
+            answers: item[3].map(code => CODE_TO_SCORE[code])
+        }));
+
+        // Application State
+        let surveyData = JSON.parse(JSON.stringify(ORIGINAL_SURVEY_DATA));
+        let indicators = loadStoredIndicators();
+        let filteredData = [...surveyData];
+        let selectedIndicatorIdx = 1; // Default highlight Q2 (lowest average score area)
+
+        // Chart Instances
+        let charts = {
+            stackedBar: null,
+            doughnut: null,
+            trend: null,
+            radar: null
+        };
+
+        function loadStoredIndicators() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY_LABELS);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length === 7) return parsed;
+                }
+            } catch (e) {
+                console.warn('Gagal memuat label dari localStorage:', e);
+            }
+            return JSON.parse(JSON.stringify(DEFAULT_INDICATORS));
+        }
+
+        // =========================================================================
+        // 2. CUSTOM CHART.JS PLUGINS (DIRECT BAR LABELS & DOUGHNUT CENTER TEXT)
+        // =========================================================================
+        const stackedBarDirectLabelPlugin = {
+            id: 'stackedBarDirectLabelPlugin',
+            afterDatasetsDraw(chart) {
+                const { ctx } = chart;
+                ctx.save();
+                ctx.font = '700 11px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                chart.data.datasets.forEach((dataset, dsIndex) => {
+                    const meta = chart.getDatasetMeta(dsIndex);
+                    if (meta.hidden) return;
+
+                    meta.data.forEach((bar, index) => {
+                        const val = dataset.data[index];
+                        if (val >= 12) { // Show label directly inside segments >= 12%
+                            const width = Math.abs(bar.x - bar.base);
+                            if (width > 26) {
+                                const centerX = (bar.x + bar.base) / 2;
+                                const centerY = bar.y;
+                                ctx.fillStyle = dsIndex === 2 ? '#1e293b' : '#ffffff'; // Dark text on Amber, white on Indigo/Sky/Rose
+                                ctx.fillText(`${val.toFixed(0)}%`, centerX, centerY);
+                            }
+                        }
+                    });
+                });
+                ctx.restore();
+            }
+        };
+
+        const doughnutCenterTextPlugin = {
+            id: 'doughnutCenterTextPlugin',
+            afterDraw(chart) {
+                if (chart.config.type !== 'doughnut') return;
+                const { ctx, chartArea } = chart;
+                if (!chartArea) return;
+
+                const centerX = (chartArea.left + chartArea.right) / 2;
+                const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                const totalItems = chart.config.options.plugins.centerData?.totalItems || 0;
+                const posPct = chart.config.options.plugins.centerData?.posPct || '0.0%';
+
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                ctx.font = '800 20px Inter, sans-serif';
+                ctx.fillStyle = '#0f172a';
+                ctx.fillText(posPct, centerX, centerY - 10);
+
+                ctx.font = '600 10px Inter, sans-serif';
+                ctx.fillStyle = '#059669';
+                ctx.fillText('SETUJU (SS+S)', centerX, centerY + 7);
+
+                ctx.font = '500 10px Inter, sans-serif';
+                ctx.fillStyle = '#64748b';
+                ctx.fillText(`${totalItems} Titik Data`, centerX, centerY + 21);
+                ctx.restore();
+            }
+        };
+
+        // =========================================================================
+        // 3. INITIALIZATION ON WINDOW LOAD
+        // =========================================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            renderLabelInputs();
+            updateSessionFilterCounts();
+            applyFilters();
+        });
+
+        function updateSessionFilterCounts() {
+            const total = surveyData.length;
+            const c12 = surveyData.filter(d => d.date === '2026-11-12').length;
+            const c13 = surveyData.filter(d => d.date === '2026-11-13').length;
+            const sel = document.getElementById('filterSession');
+            sel.options[0].text = `Semua Sesi (${total} Responden)`;
+            sel.options[1].text = `Sesi 12 Nov Malam (${c12} Responden)`;
+            sel.options[2].text = `Sesi 13 Nov Pagi–Sore (${c13} Responden)`;
+        }
+
+        // =========================================================================
+        // 4. FILTERING & EXACT MATHEMATICAL METRICS CALCULATION
+        // =========================================================================
+        function getRespondentAvg(row) {
+            return row.answers.reduce((a, b) => a + b, 0) / row.answers.length;
+        }
+
+        function applyFilters() {
+            const sessionVal = document.getElementById('filterSession').value;
+            const profileVal = document.getElementById('filterProfile').value;
+
+            filteredData = surveyData.filter(row => {
+                if (sessionVal !== 'ALL' && row.date !== sessionVal) return false;
+
+                const avg = getRespondentAvg(row);
+                if (profileVal === 'HIGH' && avg < 3.00) return false;
+                if (profileVal === 'MEDIUM' && (avg < 2.25 || avg >= 3.00)) return false;
+                if (profileVal === 'LOW' && avg >= 2.25) return false;
+
+                return true;
+            });
+
+            const statusText = document.getElementById('filterStatusText');
+            const resetBtn = document.getElementById('btnResetFilter');
+            const totalPoints = filteredData.length * 7;
+
+            if (sessionVal === 'ALL' && profileVal === 'ALL') {
+                statusText.textContent = `Menampilkan seluruh ${filteredData.length} responden (${totalPoints} titik data)`;
+                resetBtn.classList.add('hidden');
+            } else {
+                statusText.textContent = `Filter aktif: ${filteredData.length} dari ${surveyData.length} responden (${totalPoints} titik data)`;
+                resetBtn.classList.remove('hidden');
+            }
+
+            updateDashboard();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterSession').value = 'ALL';
+            document.getElementById('filterProfile').value = 'ALL';
+            applyFilters();
+        }
+
+        function calculateMetrics(data) {
+            const totalRespondents = data.length;
+            const numIndicators = indicators.length;
+
+            const indicatorStats = indicators.map((ind, idx) => {
+                let counts = { 4: 0, 3: 0, 2: 0, 1: 0 };
+                let sum = 0;
+
+                data.forEach(row => {
+                    const val = row.answers[idx];
+                    counts[val] = (counts[val] || 0) + 1;
+                    sum += val;
+                });
+
+                const avg = totalRespondents > 0 ? sum / totalRespondents : 0;
+                const posCount = counts[4] + counts[3];
+                const negCount = counts[2] + counts[1];
+                const posPct = totalRespondents > 0 ? (posCount / totalRespondents) * 100 : 0;
+                const negPct = totalRespondents > 0 ? (negCount / totalRespondents) * 100 : 0;
+
+                return {
+                    index: idx,
+                    ...ind,
+                    counts,
+                    avg,
+                    posCount,
+                    negCount,
+                    posPct,
+                    negPct,
+                    pct4: totalRespondents > 0 ? (counts[4] / totalRespondents) * 100 : 0,
+                    pct3: totalRespondents > 0 ? (counts[3] / totalRespondents) * 100 : 0,
+                    pct2: totalRespondents > 0 ? (counts[2] / totalRespondents) * 100 : 0,
+                    pct1: totalRespondents > 0 ? (counts[1] / totalRespondents) * 100 : 0
+                };
+            });
+
+            let totalCounts = { 4: 0, 3: 0, 2: 0, 1: 0 };
+            let totalSum = 0;
+            let totalItems = totalRespondents * numIndicators;
+
+            indicatorStats.forEach(st => {
+                totalCounts[4] += st.counts[4];
+                totalCounts[3] += st.counts[3];
+                totalCounts[2] += st.counts[2];
+                totalCounts[1] += st.counts[1];
+                totalSum += (st.counts[4] * 4 + st.counts[3] * 3 + st.counts[2] * 2 + st.counts[1] * 1);
+            });
+
+            const overallAvg = totalItems > 0 ? totalSum / totalItems : 0;
+            const positiveTotal = totalCounts[4] + totalCounts[3];
+            const negativeTotal = totalCounts[2] + totalCounts[1];
+            const positivePct = totalItems > 0 ? (positiveTotal / totalItems) * 100 : 0;
+            const negativePct = totalItems > 0 ? (negativeTotal / totalItems) * 100 : 0;
+
+            return {
+                totalRespondents,
+                totalItems,
+                indicatorStats,
+                totalCounts,
+                overallAvg,
+                positiveTotal,
+                negativeTotal,
+                positivePct,
+                negativePct
+            };
+        }
+
+        // =========================================================================
+        // 5. UPDATE UI COMPONENTS & CHARTS
+        // =========================================================================
+        function updateDashboard() {
+            const metrics = calculateMetrics(filteredData);
+
+            // 1. Update KPI Cards
+            document.getElementById('kpiTotalRespondents').textContent = metrics.totalRespondents;
+            const count12 = filteredData.filter(d => d.date === '2026-11-12').length;
+            const count13 = filteredData.filter(d => d.date === '2026-11-13').length;
+            document.getElementById('kpiSessionBreakdown').textContent = `12 Nov: ${count12} | 13 Nov: ${count13}`;
+            document.getElementById('kpiTotalItemsBadge').textContent = `${metrics.totalItems} Titik Data`;
+
+            document.getElementById('kpiPositiveRate').textContent = `${metrics.positivePct.toFixed(1)}%`;
+            document.getElementById('kpiPositiveCount').textContent = `${metrics.positiveTotal} / ${metrics.totalItems} item`;
+            document.getElementById('kpiNegativeRate').textContent = `${metrics.negativePct.toFixed(1)}% (${metrics.negativeTotal} item)`;
+
+            document.getElementById('kpiAvgScore').textContent = metrics.overallAvg.toFixed(2);
+            const barWidth = Math.min(100, Math.max(0, ((metrics.overallAvg - 1) / 3) * 100));
+            document.getElementById('kpiScoreBar').style.width = `${barWidth}%`;
+
+            let scoreCategory = 'Perlu Perhatian Khusus (< 2.50)';
+            if (metrics.overallAvg >= 3.00) scoreCategory = 'Positif / Resiliensi Baik (≥ 3.00)';
+            else if (metrics.overallAvg >= 2.50) scoreCategory = 'Moderat Positif (Di atas netral 2.50)';
+            document.getElementById('kpiScoreLabel').textContent = `Status: ${scoreCategory}`;
+
+            // Area Perhatian Utama (Lowest scoring indicator in active filter)
+            if (metrics.totalRespondents > 0) {
+                const lowest = [...metrics.indicatorStats].sort((a, b) => a.avg - b.avg)[0];
+                document.getElementById('kpiLowestCode').textContent = `${lowest.id} (Skor ${lowest.avg.toFixed(2)})`;
+                document.getElementById('kpiLowestName').textContent = lowest.name;
+                document.getElementById('kpiLowestNegPct').textContent = `${lowest.negPct.toFixed(1)}% (${lowest.negCount}/${metrics.totalRespondents})`;
+            } else {
+                document.getElementById('kpiLowestCode').textContent = '-';
+                document.getElementById('kpiLowestName').textContent = 'Tidak ada data pada filter ini';
+                document.getElementById('kpiLowestNegPct').textContent = '0%';
+            }
+
+            // 2. Render Selected Indicator Drilldown Card
+            renderIndicatorDrilldown(metrics);
+
+            // 3. Render 4 Main Charts
+            renderStackedBarChart(metrics);
+            renderDoughnutChart(metrics);
+            renderTrendChart(filteredData);
+            renderRadarChart(metrics);
+
+            // 4. Render Executive Insights, Summary Table & Raw Data Audit Table
+            renderInsights(metrics);
+            renderSummaryTable(metrics);
+            renderRawDataTable(filteredData);
+        }
+
+        function selectIndicator(idx) {
+            selectedIndicatorIdx = idx;
+            const metrics = calculateMetrics(filteredData);
+            renderIndicatorDrilldown(metrics);
+            renderSummaryTable(metrics);
+        }
+
+        function renderIndicatorDrilldown(metrics) {
+            const pillsContainer = document.getElementById('drillSelectorPills');
+            pillsContainer.innerHTML = metrics.indicatorStats.map((st, idx) => {
+                const active = idx === selectedIndicatorIdx;
+                return `
+                    <button onclick="selectIndicator(${idx})" class="px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                        active
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700'
+                    }">
+                        ${st.id}
+                    </button>
+                `;
+            }).join('');
+
+            const st = metrics.indicatorStats[selectedIndicatorIdx] || metrics.indicatorStats[0];
+            const n = metrics.totalRespondents;
+
+            document.getElementById('drillBadgeCode').textContent = st.id;
+            document.getElementById('drillTitle').textContent = st.name;
+
+            document.getElementById('drillCount4').textContent = st.counts[4];
+            document.getElementById('drillPct4').textContent = `${st.pct4.toFixed(1)}%`;
+
+            document.getElementById('drillCount3').textContent = st.counts[3];
+            document.getElementById('drillPct3').textContent = `${st.pct3.toFixed(1)}%`;
+
+            document.getElementById('drillCount2').textContent = st.counts[2];
+            document.getElementById('drillPct2').textContent = `${st.pct2.toFixed(1)}%`;
+
+            document.getElementById('drillCount1').textContent = st.counts[1];
+            document.getElementById('drillPct1').textContent = `${st.pct1.toFixed(1)}%`;
+
+            document.getElementById('drillAvg').textContent = st.avg.toFixed(2);
+
+            const statusEl = document.getElementById('drillStatusText');
+            const recEl = document.getElementById('drillRecommendation');
+
+            if (n === 0) {
+                statusEl.textContent = 'Kosong';
+                statusEl.className = 'text-[10px] font-semibold text-slate-400';
+                recEl.textContent = 'Tidak ada responden yang memenuhi kriteria filter aktif saat ini.';
+                return;
+            }
+
+            if (st.avg < 2.50) {
+                statusEl.textContent = 'Area Perhatian Utama';
+                statusEl.className = 'text-[10px] font-bold text-rose-400';
+                recEl.innerHTML = `Sebanyak <strong>${st.negCount} dari ${n} responden (${st.negPct.toFixed(1)}%)</strong> memilih Tidak Setuju / Sangat Tidak Setuju pada <strong>${st.id}</strong> (skor rata-rata <strong>${st.avg.toFixed(2)}</strong>, di bawah garis netral 2.50). Disarankan menjadi agenda evaluasi prioritas pimpinan sekolah dan layanan konseling BK.`;
+            } else if (st.avg < 2.85) {
+                statusEl.textContent = 'Area Waspada / Moderat';
+                statusEl.className = 'text-[10px] font-bold text-amber-300';
+                recEl.innerHTML = `Skor rata-rata <strong>${st.avg.toFixed(2)}</strong> berada di atas titik netral 2.50 dengan <strong>${st.posCount} responden (${st.posPct.toFixed(1)}%)</strong> menyatakan Setuju/Sangat Setuju, namun masih terdapat <strong>${st.negCount} responden (${st.negPct.toFixed(1)}%)</strong> yang mengalami hambatan. Perlu pemantauan berkala di jam sore fullday.`;
+            } else {
+                statusEl.textContent = 'Area Positif / Resiliensi';
+                statusEl.className = 'text-[10px] font-bold text-emerald-400';
+                recEl.innerHTML = `Aspek kuat dengan persetujuan positif mencapai <strong>${st.posPct.toFixed(1)}% (${st.posCount} dari ${n} responden)</strong> dan skor rata-rata <strong>${st.avg.toFixed(2)}/4.00</strong>. Faktor protektif ini perlu dipertahankan sekolah untuk mencegah kelelahan akademik/kerja.`;
+            }
+        }
+
+        // Chart 1: 100% Stacked Bar Chart with Direct Labels >= 12% & Click Interaction
+        function renderStackedBarChart(metrics) {
+            const ctx = document.getElementById('stackedBarChart').getContext('2d');
+            if (charts.stackedBar) charts.stackedBar.destroy();
+
+            const labels = metrics.indicatorStats.map(s => s.short);
+            const dataSS  = metrics.indicatorStats.map(s => Number(s.pct4.toFixed(1)));
+            const dataS   = metrics.indicatorStats.map(s => Number(s.pct3.toFixed(1)));
+            const dataTS  = metrics.indicatorStats.map(s => Number(s.pct2.toFixed(1)));
+            const dataSTS = metrics.indicatorStats.map(s => Number(s.pct1.toFixed(1)));
+
+            charts.stackedBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Sangat Setuju (SS = 4)', data: dataSS, backgroundColor: '#4f46e5', borderRadius: 2 },
+                        { label: 'Setuju (S = 3)', data: dataS, backgroundColor: '#0ea5e9', borderRadius: 2 },
+                        { label: 'Tidak Setuju (TS = 2)', data: dataTS, backgroundColor: '#fbbf24', borderRadius: 2 },
+                        { label: 'Sangat Tidak Setuju (STS = 1)', data: dataSTS, backgroundColor: '#f43f5e', borderRadius: 2 }
+                    ]
+                },
+                plugins: [stackedBarDirectLabelPlugin],
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const idx = elements[0].index;
+                            selectIndicator(idx);
+                            document.getElementById('indicatorDrilldownCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 12,
+                            titleFont: { size: 12, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                title: (items) => {
+                                    const idx = items[0].dataIndex;
+                                    const st = metrics.indicatorStats[idx];
+                                    return `${st.name} (Skor Rata²: ${st.avg.toFixed(2)})`;
+                                },
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    const dsIdx = context.datasetIndex;
+                                    const codes = [4, 3, 2, 1];
+                                    const count = metrics.indicatorStats[idx].counts[codes[dsIdx]];
+                                    const total = metrics.totalRespondents;
+                                    return ` ${context.dataset.label}: ${count} dari ${total} resp. (${context.parsed.x.toFixed(1)}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%', font: { size: 11 } },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: { font: { size: 11, weight: '700' }, color: '#1e293b' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Doughnut Chart with Dynamic Center Text & Exact Counts + Percentages
+        function renderDoughnutChart(metrics) {
+            const ctx = document.getElementById('doughnutChart').getContext('2d');
+            if (charts.doughnut) charts.doughnut.destroy();
+
+            const c = metrics.totalCounts;
+            const total = metrics.totalItems || 1;
+            const posPctStr = `${metrics.positivePct.toFixed(1)}%`;
+
+            document.getElementById('doughnutSubtitle').textContent =
+                `${metrics.totalItems} Titik Data = ${metrics.totalRespondents} Responden × 7 Indikator`;
+
+            charts.doughnut = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sangat Setuju (SS)', 'Setuju (S)', 'Tidak Setuju (TS)', 'Sangat Tidak Setuju (STS)'],
+                    datasets: [{
+                        data: [c[4], c[3], c[2], c[1]],
+                        backgroundColor: ['#4f46e5', '#0ea5e9', '#fbbf24', '#f43f5e'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 6
+                    }]
+                },
+                plugins: [doughnutCenterTextPlugin],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: { display: false },
+                        centerData: {
+                            totalItems: metrics.totalItems,
+                            posPct: posPctStr
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 12,
+                            callbacks: {
+                                label: function(ctx) {
+                                    const val = ctx.parsed;
+                                    const pct = metrics.totalItems > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
+                                    return ` ${ctx.label}: ${val} respons (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const items = [
+                { label: 'SS (4)', val: c[4], color: 'bg-indigo-600' },
+                { label: 'S (3)', val: c[3], color: 'bg-sky-500' },
+                { label: 'TS (2)', val: c[2], color: 'bg-amber-400' },
+                { label: 'STS (1)', val: c[1], color: 'bg-rose-500' }
+            ];
+            document.getElementById('doughnutLegendSummary').innerHTML = items.map(it => {
+                const pct = metrics.totalItems > 0 ? ((it.val / total) * 100).toFixed(1) : '0.0';
+                return `
+                    <div class="flex items-center justify-between bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
+                        <span class="flex items-center gap-1.5 text-slate-700 font-medium">
+                            <span class="w-2.5 h-2.5 rounded-full ${it.color} shrink-0"></span>
+                            <span>${it.label}</span>
+                        </span>
+                        <span class="font-bold text-slate-900">${it.val} <span class="text-slate-500 font-normal">(${pct}%)</span></span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Chart 3: Time Trend Line/Area Chart + Comparative Session Insight
+        function renderTrendChart(data) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if (charts.trend) charts.trend.destroy();
+
+            const buckets = [
+                { label: '12 Nov 20:40–20:59', count: 0, scores: [] },
+                { label: '12 Nov 21:00–21:59', count: 0, scores: [] },
+                { label: '12 Nov 22:00–23:59', count: 0, scores: [] },
+                { label: '13 Nov 06:45–07:59', count: 0, scores: [] },
+                { label: '13 Nov 08:00–16:15', count: 0, scores: [] }
+            ];
+
+            data.forEach(row => {
+                const hour = parseInt(row.time.split(':')[0], 10);
+                const avg = getRespondentAvg(row);
+                let bIdx = 0;
+                if (row.date === '2026-11-12') {
+                    if (hour <= 20) bIdx = 0;
+                    else if (hour === 21) bIdx = 1;
+                    else bIdx = 2;
+                } else {
+                    if (hour <= 7) bIdx = 3;
+                    else bIdx = 4;
+                }
+                buckets[bIdx].count++;
+                buckets[bIdx].scores.push(avg);
+            });
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+            gradient.addColorStop(0, 'rgba(79, 70, 229, 0.25)');
+            gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: buckets.map(b => b.label),
+                    datasets: [{
+                        label: 'Jumlah Responden',
+                        data: buckets.map(b => b.count),
+                        borderColor: '#4f46e5',
+                        backgroundColor: gradient,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#4f46e5',
+                        pointBorderWidth: 2.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 12,
+                            callbacks: {
+                                label: ctx => {
+                                    const b = buckets[ctx.dataIndex];
+                                    const avgBucket = b.scores.length > 0
+                                        ? (b.scores.reduce((a, c) => a + c, 0) / b.scores.length).toFixed(2)
+                                        : '-';
+                                    return [
+                                        ` Jumlah Masuk: ${b.count} Responden`,
+                                        ` Rata-rata Skor Sesi: ${avgBucket} / 4.00`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 5, font: { size: 11 } },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            ticks: { font: { size: 10, weight: '600' }, color: '#334155' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Compute exact comparison between Sesi 12 Nov Malam vs Sesi 13 Nov Pagi-Sore
+            const nightRows = data.filter(r => r.date === '2026-11-12');
+            const dayRows   = data.filter(r => r.date === '2026-11-13');
+
+            const calcGroupAvg = (rows) => {
+                if (rows.length === 0) return null;
+                const sum = rows.reduce((acc, r) => acc + getRespondentAvg(r), 0);
+                return sum / rows.length;
+            };
+
+            const nightAvg = calcGroupAvg(nightRows);
+            const dayAvg   = calcGroupAvg(dayRows);
+
+            const box = document.getElementById('timeSessionInsightBox');
+            if (nightAvg !== null && dayAvg !== null) {
+                const diff = (dayAvg - nightAvg).toFixed(2);
+                const direction = dayAvg > nightAvg
+                    ? `lebih tinggi <strong>+${diff} poin</strong> pada sesi pagi–sore dibandingkan sesi malam (indikasi efek kelelahan malam hari pasca aktivitas fullday)`
+                    : `relatif stabil antara kedua sesi waktu pengisian`;
+                box.innerHTML = `<i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-1.5"></i><strong>Analisis Waktu Pengisian:</strong> Sesi 12 Nov Malam (<strong>${nightRows.length} resp.</strong>) mencatat skor rata-rata <strong>${nightAvg.toFixed(2)}</strong>, sedangkan Sesi 13 Nov Pagi–Sore (<strong>${dayRows.length} resp.</strong>) mencatat rata-rata <strong>${dayAvg.toFixed(2)}</strong> — skor cenderung ${direction}.`;
+            } else if (nightAvg !== null) {
+                box.innerHTML = `<i class="fa-solid fa-moon text-indigo-600 mr-1.5"></i><strong>Sesi 12 Nov Malam Aktif:</strong> Menampilkan <strong>${nightRows.length} responden</strong> (pukul 20:41–23:51) dengan skor rata-rata sesi <strong>${nightAvg.toFixed(2)} / 4.00</strong>.`;
+            } else if (dayAvg !== null) {
+                box.innerHTML = `<i class="fa-solid fa-sun text-amber-500 mr-1.5"></i><strong>Sesi 13 Nov Pagi–Sore Aktif:</strong> Menampilkan <strong>${dayRows.length} responden</strong> (pukul 06:45–16:11) dengan skor rata-rata sesi <strong>${dayAvg.toFixed(2)} / 4.00</strong>.`;
+            } else {
+                box.textContent = 'Tidak ada data waktu pengisian pada filter aktif.';
+            }
+        }
+
+        // Chart 4: Radar Chart with Neutral 2.50 Reference Polygon
+        function renderRadarChart(metrics) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            if (charts.radar) charts.radar.destroy();
+
+            charts.radar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: metrics.indicatorStats.map(s => s.id),
+                    datasets: [
+                        {
+                            label: 'Skor Rata-Rata Aktual',
+                            data: metrics.indicatorStats.map(s => Number(s.avg.toFixed(2))),
+                            backgroundColor: 'rgba(79, 70, 229, 0.22)',
+                            borderColor: '#4f46e5',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: metrics.indicatorStats.map(s => s.avg < 2.50 ? '#f43f5e' : '#4f46e5'),
+                            pointBorderColor: '#ffffff',
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Garis Batas Netral (2.50)',
+                            data: metrics.indicatorStats.map(() => 2.50),
+                            backgroundColor: 'transparent',
+                            borderColor: '#f43f5e',
+                            borderWidth: 1.8,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            pointHoverRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 12,
+                            callbacks: {
+                                title: (items) => {
+                                    const idx = items[0].dataIndex;
+                                    return metrics.indicatorStats[idx].name;
+                                },
+                                label: (ctx) => {
+                                    if (ctx.datasetIndex === 1) return ' Garis Referensi Netral: 2.50';
+                                    const idx = ctx.dataIndex;
+                                    const st = metrics.indicatorStats[idx];
+                                    const diff = (st.avg - 2.50).toFixed(2);
+                                    const sign = st.avg >= 2.50 ? '+' : '';
+                                    return ` Skor Aktual: ${st.avg.toFixed(2)} / 4.00 (${sign}${diff} vs Netral)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            min: 1,
+                            max: 4,
+                            ticks: { stepSize: 0.5, backdropColor: 'transparent', font: { size: 9 }, color: '#64748b' },
+                            pointLabels: { font: { size: 12, weight: '800' }, color: '#0f172a' },
+                            grid: { color: '#e2e8f0' },
+                            angleLines: { color: '#e2e8f0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // =========================================================================
+        // 6. EXECUTIVE INSIGHTS & TABLES
+        // =========================================================================
+        function renderInsights(metrics) {
+            const container = document.getElementById('insightContainer');
+            if (metrics.totalRespondents === 0) {
+                container.innerHTML = `<div class="col-span-3 text-sm text-slate-300">Tidak ada data responden untuk filter yang dipilih.</div>`;
+                return;
+            }
+
+            const sorted = [...metrics.indicatorStats].sort((a, b) => b.avg - a.avg);
+            const highest = sorted[0];
+            const lowest  = sorted[sorted.length - 1];
+            const belowNeutral = metrics.indicatorStats.filter(s => s.avg < 2.50);
+
+            container.innerHTML = `
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Faktor Resiliensi Tertinggi (${highest.id})</span>
+                    </div>
+                    <p class="text-sm font-bold text-white mb-1">${highest.name}</p>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Mencapai skor tertinggi <strong class="text-emerald-300">${highest.avg.toFixed(2)} / 4.00</strong> dengan <strong class="text-white">${highest.posCount} dari ${metrics.totalRespondents} responden (${highest.posPct.toFixed(1)}%)</strong> menyatakan Setuju / Sangat Setuju.
+                    </p>
+                </div>
+
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div class="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Indikator Paling Kritis (${lowest.id})</span>
+                    </div>
+                    <p class="text-sm font-bold text-white mb-1">${lowest.name}</p>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Skor rata-rata terendah <strong class="text-rose-300">${lowest.avg.toFixed(2)} / 4.00</strong>. Sebanyak <strong class="text-white">${lowest.negCount} dari ${metrics.totalRespondents} responden (${lowest.negPct.toFixed(1)}%)</strong> memilih Tidak Setuju / Sangat Tidak Setuju.
+                    </p>
+                </div>
+
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div class="flex items-center gap-2 text-sky-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Posisi Terhadap Batas Netral (2.50)</span>
+                    </div>
+                    <p class="text-sm font-bold text-white mb-1">${belowNeutral.length} dari 7 Indikator di Bawah 2.50</p>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        ${belowNeutral.length > 0
+                            ? `Indikator di bawah garis netral: <strong class="text-amber-300">${belowNeutral.map(i => `${i.id} (${i.avg.toFixed(2)})`).join(', ')}</strong>. Mayoritas indikator lainnya berada di zona positif di atas 2.50.`
+                            : `Seluruh indikator berada di atas garis referensi netral 2.50 pada kelompok filter yang dipilih.`
+                        }
+                    </p>
+                </div>
+            `;
+        }
+
+        function renderSummaryTable(metrics) {
+            const tbody = document.getElementById('summaryTableBody');
+            tbody.innerHTML = metrics.indicatorStats.map((st, idx) => {
+                const isSelected = idx === selectedIndicatorIdx;
+                let badge = '';
+                if (st.avg >= 2.85) {
+                    badge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-shield-check text-[10px]"></i> Positif / Kuat</span>`;
+                } else if (st.avg >= 2.50) {
+                    badge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200"><i class="fa-solid fa-circle-exclamation text-[10px]"></i> Waspada / Moderat</span>`;
+                } else {
+                    badge = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200"><i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Perhatian Utama</span>`;
+                }
+
+                return `
+                    <tr onclick="selectIndicator(${idx})" class="cursor-pointer transition ${isSelected ? 'bg-indigo-50/70 hover:bg-indigo-50' : 'hover:bg-slate-50'}">
+                        <td class="py-3.5 px-4 font-extrabold text-indigo-700 whitespace-nowrap">
+                            ${st.id} ${isSelected ? '<i class="fa-solid fa-caret-right text-indigo-600 ml-1"></i>' : ''}
+                        </td>
+                        <td class="py-3.5 px-4 font-semibold text-slate-800">${st.name}</td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="font-bold text-slate-900">${st.counts[4]}</span>
+                            <span class="text-[11px] text-slate-500 block">${st.pct4.toFixed(1)}%</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="font-bold text-slate-900">${st.counts[3]}</span>
+                            <span class="text-[11px] text-slate-500 block">${st.pct3.toFixed(1)}%</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="font-bold text-slate-900">${st.counts[2]}</span>
+                            <span class="text-[11px] text-slate-500 block">${st.pct2.toFixed(1)}%</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="font-bold text-slate-900">${st.counts[1]}</span>
+                            <span class="text-[11px] text-slate-500 block">${st.pct1.toFixed(1)}%</span>
+                        </td>
+                        <td class="py-3.5 px-4 text-center font-bold text-emerald-700">${st.posPct.toFixed(1)}%</td>
+                        <td class="py-3.5 px-4 text-center font-bold text-rose-700">${st.negPct.toFixed(1)}%</td>
+                        <td class="py-3.5 px-4 text-center">
+                            <span class="px-2.5 py-1 rounded-lg font-extrabold text-xs ${st.avg < 2.50 ? 'bg-rose-100 text-rose-900' : 'bg-slate-100 text-slate-900'}">${st.avg.toFixed(2)}</span>
+                        </td>
+                        <td class="py-3.5 px-4 text-center whitespace-nowrap">${badge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderRawDataTable(data) {
+            const tbody = document.getElementById('rawDataBody');
+            const badgeMap = {
+                4: '<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold">SS (4)</span>',
+                3: '<span class="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 font-bold">S (3)</span>',
+                2: '<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 font-bold">TS (2)</span>',
+                1: '<span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-bold">STS (1)</span>'
+            };
+
+            tbody.innerHTML = data.map(row => {
+                const avg = getRespondentAvg(row);
+                let profileBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800">Sedang</span>';
+                if (avg >= 3.00) {
+                    profileBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">Positif</span>';
+                } else if (avg < 2.25) {
+                    profileBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700">Perhatian</span>';
+                }
+
+                const cells = row.answers.map(val => `<td class="py-2 px-2 text-center whitespace-nowrap">${badgeMap[val]}</td>`).join('');
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2 px-3 font-mono font-bold text-slate-700">${row.id}</td>
+                        <td class="py-2 px-3 font-mono text-slate-600 whitespace-nowrap">${row.date} ${row.time}</td>
+                        ${cells}
+                        <td class="py-2 px-3 text-right font-extrabold text-slate-900">${avg.toFixed(2)}</td>
+                        <td class="py-2 px-3 text-center">${profileBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // 7. CUSTOMIZE QUESTIONNAIRE LABELS (WITH LOCALSTORAGE PERSISTENCE)
+        // =========================================================================
+        function renderLabelInputs() {
+            const container = document.getElementById('labelInputsContainer');
+            container.innerHTML = indicators.map((ind, idx) => `
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">${ind.id} — Teks Pertanyaan Kuesioner</label>
+                    <input type="text" id="inputLabel_${idx}" value="${ind.name.replace(/"/g, '&quot;')}" class="w-full text-xs border border-slate-300 rounded-xl px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            `).join('');
+        }
+
+        function saveIndicatorLabels() {
+            indicators.forEach((ind, idx) => {
+                const val = document.getElementById(`inputLabel_${idx}`).value.trim();
+                if (val) {
+                    ind.name = val;
+                    ind.short = val.length > 28 ? `${ind.id}: ${val.substring(0, 22)}...` : val;
+                }
+            });
+            try {
+                localStorage.setItem(STORAGE_KEY_LABELS, JSON.stringify(indicators));
+            } catch (e) {
+                console.warn('Tidak dapat menyimpan ke localStorage:', e);
+            }
+            closeModal('modalLabels');
+            updateDashboard();
+            showToast('Redaksi pertanyaan Q1–Q7 berhasil disimpan!');
+        }
+
+        function resetIndicatorLabels() {
+            indicators = JSON.parse(JSON.stringify(DEFAULT_INDICATORS));
+            try {
+                localStorage.removeItem(STORAGE_KEY_LABELS);
+            } catch (e) {}
+            renderLabelInputs();
+            updateDashboard();
+            showToast('Label pertanyaan dikembalikan ke pengaturan awal.');
+        }
+
+        // =========================================================================
+        // 8. CSV EXPORT & IMPORT PARSER
+        // =========================================================================
+        function exportFilteredCSV() {
+            const scoreToLabel = { 4: 'SS', 3: 'S', 2: 'TS', 1: 'STS' };
+            const headers = ['Responden', 'Tanggal', 'Waktu', ...indicators.map(i => `"${i.name.replace(/"/g, '""')}"`), 'Skor_Rata_Rata'];
+            const rows = filteredData.map(r => {
+                const avg = getRespondentAvg(r).toFixed(2);
+                const ansLabels = r.answers.map(v => scoreToLabel[v]);
+                return [r.id, r.date, r.time, ...ansLabels, avg].join(',');
+            });
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Laporan_Burnout_SMA_Fullday_Al_Muhajirin_${filteredData.length}Resp.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast(`Berhasil mengunduh CSV (${filteredData.length} responden).`);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('csvTextArea').value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+
+        function fillSampleCSV() {
+            const sample = `Timestamp, Q1, Q2, Q3, Q4, Q5, Q6, Q7
+12 Nov 2026 20:41:10, TS, STS, S, S, S, S, S
+12 Nov 2026 21:05:33, S, TS, SS, S, SS, SS, SS
+13 Nov 2026 07:01:05, S, TS, TS, S, S, S, S`;
+            document.getElementById('csvTextArea').value = sample;
+        }
+
+        function parseLikertValue(raw) {
+            if (!raw) return 3;
+            const clean = raw.toString().trim().toLowerCase();
+            if (clean === '4' || clean === 'ss' || clean.includes('sangat setuju')) return 4;
+            if (clean === '1' || clean === 'sts' || clean.includes('sangat tidak')) return 1;
+            if (clean === '2' || clean === 'ts' || clean.includes('tidak setuju')) return 2;
+            if (clean === '3' || clean === 's' || clean.includes('setuju')) return 3;
+            return 3;
+        }
+
+        function processPastedCSV() {
+            const rawText = document.getElementById('csvTextArea').value.trim();
+            const feedback = document.getElementById('csvFeedback');
+
+            if (!rawText) {
+                feedback.className = 'text-xs p-3 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 block';
+                feedback.textContent = 'Silakan tempelkan data CSV atau unggah file terlebih dahulu.';
+                return;
+            }
+
+            const lines = rawText.split(/\r?\n/).filter(l => l.trim().length > 0);
+            const parsedRows = [];
+
+            lines.forEach((line, index) => {
+                const delimiter = line.includes('\t') ? '\t' : (line.includes(';') ? ';' : ',');
+                const cols = line.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+
+                if (index === 0 && (cols[0].toLowerCase().includes('time') || cols[0].toLowerCase().includes('tanggal') || cols[1]?.toLowerCase() === 'q1')) {
+                    return;
+                }
+
+                if (cols.length >= 8) {
+                    const ts = cols[0];
+                    let dateStr = '2026-11-12';
+                    let timeStr = '21:00:00';
+
+                    if (ts.includes('13')) dateStr = '2026-11-13';
+                    const timeMatch = ts.match(/(\d{1,2}:\d{2}(?::\d{2})?)/);
+                    if (timeMatch) timeStr = timeMatch[1].padStart(8, '0');
+
+                    const answers = [];
+                    for (let i = 1; i <= 7; i++) {
+                        answers.push(parseLikertValue(cols[i]));
+                    }
+
+                    parsedRows.push({
+                        id: `R${parsedRows.length + 1}`,
+                        date: dateStr,
+                        time: timeStr,
+                        answers
+                    });
+                }
+            });
+
+            if (parsedRows.length === 0) {
+                feedback.className = 'text-xs p-3 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 block';
+                feedback.textContent = 'Format tidak valid. Pastikan setiap baris memiliki 8 kolom (Timestamp + Q1 s/d Q7).';
+                return;
+            }
+
+            surveyData = parsedRows;
+            updateSessionFilterCounts();
+            closeModal('modalCSV');
+            resetFilters();
+            showToast(`Berhasil memuat ${parsedRows.length} data responden baru!`);
+        }
+
+        function restoreOriginalData() {
+            surveyData = JSON.parse(JSON.stringify(ORIGINAL_SURVEY_DATA));
+            document.getElementById('csvTextArea').value = '';
+            document.getElementById('csvFeedback').classList.add('hidden');
+            updateSessionFilterCounts();
+            closeModal('modalCSV');
+            resetFilters();
+            showToast('Data asli 60 responden SMA Fullday Al-Muhajirin dipulihkan.');
+        }
+
+        // =========================================================================
+        // 9. UI HELPERS (SCHOOL GUIDE TOGGLE, MODALS, ACCORDION, TOAST)
+        // =========================================================================
+        function toggleSchoolGuide() {
+            const panel = document.getElementById('schoolGuidePanel');
+            const btn = document.getElementById('btnToggleGuide');
+            const isHidden = panel.classList.contains('hidden');
+            if (isHidden) {
+                panel.classList.remove('hidden');
+                btn.classList.replace('bg-indigo-50', 'bg-indigo-600');
+                btn.classList.replace('text-indigo-700', 'text-white');
+            } else {
+                panel.classList.add('hidden');
+                btn.classList.replace('bg-indigo-600', 'bg-indigo-50');
+                btn.classList.replace('text-white', 'text-indigo-700');
+            }
+        }
+
+        function openModal(id) {
+            if (id === 'modalLabels') renderLabelInputs();
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function toggleRawData() {
+            const wrapper = document.getElementById('rawDataWrapper');
+            const icon = document.getElementById('rawDataChevron');
+            wrapper.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3200);
+        }
+    </script>
+</body>
+</html>
